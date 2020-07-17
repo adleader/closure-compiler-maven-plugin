@@ -1,3 +1,66 @@
+#参考地址
+https://blutorange.github.io/closure-compiler-maven-plugin/
+配置说明：
+```xml
+<plugins>
+    <plugin>
+        <!-- 此插件只能压缩js，不能压缩css；如果需要压缩css，可以考虑使用yuicompressor -->
+        <groupId>com.github.blutorange</groupId>
+        <artifactId>closure-compiler-maven-plugin</artifactId>
+        <version>2.9.0</version>
+        <executions>
+            <execution>
+                <id>default-minify</id>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+ 
+                    <!-- 压缩webapp目录下的所有js文件，但是排除*.min.js文件； -->
+                    <targetDir>./</targetDir>
+                    <includes>**/*.js</includes>
+                    <excludes>**/*.min.js</excludes>
+ 
+                    <!-- 输出目录为${project.build.directory}/${project.build.finalName}下的目录，不配置时默认为js. -->
+                    <sourceDir>./</sourceDir>
+ 
+                    <!-- 跳过js文件合并 -->
+                    <skipMerge>true</skipMerge>
+ 
+                    <!-- js文件输出格式，默认为#{path}/#{basename}.min.#{extension} -->
+                    <outputFilename>#{path}/#{basename}.#{extension}</outputFilename>
+ 
+                    <!-- js源文件版本，直接填最高即可，都能向下兼容 -->
+                    <closureLanguageIn>ECMASCRIPT_2019</closureLanguageIn>
+ 
+                    <!-- js压缩后的文件格式版本，注意与浏览器的兼容性 -->
+                    <closureLanguageOut>ECMASCRIPT_2015</closureLanguageOut>
+ 
+                    <!-- 使用closure压缩时的压缩级别，默认值为SIMPLE_OPTIMIZATIONS。可选值： -->
+                    <!-- WHITESPACE_ONLY：只压缩空格和转换一些特殊符号 -->
+                    <!-- SIMPLE_OPTIMIZATIONS：简单的压缩 -->
+                    <!-- ADVANCED_OPTIMIZATIONS：高级压缩，此压缩方式下可能会将引用的第3方框架/其它js文件中的的方法名称修改，导致js报错；慎用。 -->
+                    <closureCompilationLevel>SIMPLE_OPTIMIZATIONS</closureCompilationLevel>
+                </configuration>
+                <goals>
+                    <goal>minify</goal>
+                </goals>
+                <phase>generate-resources</phase>
+            </execution>
+        </executions>
+    </plugin>
+    <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+            <!-- 如果不增加此配置 src/main/webapp 下面的内容 会重新复制到target输出目录 覆盖掉编译后的内容 这样编译的还是未压缩过的内容，增加上此过滤 打war包就不会内容覆盖 -->
+            <warSourceExcludes>
+                <![CDATA[
+                    %regex[^.+(?:(?<!(?:-|\.)min)\.js)], %regex[^.+(?:(?<!(?:-|\.)min)\.css)]
+                ]]>
+            </warSourceExcludes>
+        </configuration>
+    </plugin>
+```
+
 # Closure Compiler Maven Plugin
 
 Forked from [Minify Maven Plugin](http://samaxes.github.io/minify-maven-plugin/). That project seems to be inactive. In line with the principle of single
