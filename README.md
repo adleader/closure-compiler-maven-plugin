@@ -1,3 +1,61 @@
+原版说明：
+https://github.com/samaxes/minify-maven-plugin
+不加.min后缀的压缩方式：（configuration中的配置参数都可以使用eclipse自动提示功能查看其意义）
+```xml
+<plugin>
+    <groupId>com.samaxes.maven</groupId>
+    <artifactId>minify-maven-plugin</artifactId>
+    <version>1.7.6</version>
+    <executions>
+        <execution>
+            <id>default-minify</id>
+            <configuration>
+                <charset>UTF-8</charset>
+                <cssSourceDir>./</cssSourceDir>
+ 
+                <!-- 压缩webapp目录下的所有js文件，但是排除*.min.js文件； -->
+                <jsSourceDir>./</jsSourceDir>
+                <jsIncludes>
+                    <jsInclude>**/*.js</jsInclude>
+                </jsIncludes>
+                <jsExcludes>
+                    <jsExclude>**/*.min.js</jsExclude>
+                </jsExcludes>
+ 
+                <!-- 使用closure压缩时的压缩级别，默认值为SIMPLE_OPTIMIZATIONS。可选值： -->
+                <!-- WHITESPACE_ONLY：只压缩空格和转换一些特殊符号 -->
+                <!-- SIMPLE_OPTIMIZATIONS：简单的压缩 -->
+                <!-- ADVANCED_OPTIMIZATIONS：高级压缩，此压缩方式下可能会将引用的第3方框架的方法名称修改，导致js报错；慎用。 -->
+                <closureCompilationLevel>SIMPLE_OPTIMIZATIONS</closureCompilationLevel>
+ 
+                <!-- js压缩引擎，默认值为YUI。可选值： -->
+                <!-- YUI: 使用YUI Compressor压缩； -->
+                <!-- CLOSURE: 使用Google Closure Compiler压缩 -->
+                <jsEngine>CLOSURE</jsEngine>
+                <skipMerge>true</skipMerge><!-- 不合并js/css -->
+                <nosuffix>true</nosuffix><!-- 压缩后的文件不.js前添加.min前缀 -->
+            </configuration>
+            <goals>
+                <goal>minify</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-war-plugin</artifactId>
+    <configuration>
+        <!-- 如果不增加此配置 src/main/webapp 下面的内容 会重新复制到target输出目录 覆盖掉编译后的内容 这样编译的还是未压缩过的内容，增加上此过滤 打war包就不会内容覆盖 -->
+        <warSourceExcludes>
+                        <![CDATA[
+                            %regex[^.+(?:(?<!(?:-|\.)min)\.js)], %regex[^.+(?:(?<!(?:-|\.)min)\.css)]
+                        ]]>
+        </warSourceExcludes>
+    </configuration>
+</plugin>
+```
+
+
 #参考地址
 https://blutorange.github.io/closure-compiler-maven-plugin/
 配置说明：
